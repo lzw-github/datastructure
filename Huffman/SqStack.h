@@ -1,0 +1,5 @@
+#ifndef SQSTACK_H_INCLUDED
+#define SQSTACK_H_INCLUDED
+
+
+#endif
