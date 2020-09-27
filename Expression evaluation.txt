@@ -1,0 +1,200 @@
+#include <stdio.h>
+#include<malloc.h>
+#include<math.h>
+typedef int ElemType;
+typedef char SElemType;
+#define maxsize 30
+#define Maxsize 30
+typedef struct {
+	ElemType* base;
+	ElemType* top;
+	int size;
+}SqStackInt, * ListStackInt;
+typedef struct {
+	SElemType* base;
+	SElemType* top;
+	int size;
+}SqStack, * ListStack;
+
+void StackInitInt(ListStackInt& S) {
+	S = (ListStackInt)malloc(sizeof(SqStackInt));
+	S->base = (ElemType*)malloc(maxsize * sizeof(ElemType));
+	S->top = S->base;
+	S->size = maxsize;
+}
+
+void StackPushInt(ListStackInt S, ElemType e) {
+	if (S->base == S->top - S->size)
+	{
+		return;
+	}
+	*S->top++ = e;
+}
+
+ElemType StackPopInt(ListStackInt S) {
+	if (S->base == S->top) return 0;
+	ElemType e;
+	e = *(--S->top);
+	return e;
+}
+
+void StackDisplayInt(ListStackInt S) {
+	for (ElemType* i = S->base; i < S->top; i++)
+	{
+		printf("%d ", *i);          //字符修改
+	}
+}
+
+ElemType StackGetInt(ListStackInt S) {
+	if (S->base == S->top) { return 0; }
+	else { return *(S->top - 1); }
+}
+
+void StackInit(ListStack& S) {
+	S = (ListStack)malloc(sizeof(SqStack));
+	S->base = (SElemType*)malloc(Maxsize * sizeof(SElemType));
+	S->top = S->base;
+	S->size = Maxsize;
+}
+
+void StackPush(ListStack S, SElemType e) {
+	if (S->base == S->top - S->size)
+	{
+		return;
+	}
+	*S->top++ = e;
+}
+
+SElemType StackPop(ListStack S) {
+	if (S->base == S->top) return 0;
+	SElemType e;
+	e = *(--S->top);
+	return e;
+}
+
+void StackDisplay(ListStack S) {
+	for (SElemType* i = S->base; i < S->top; i++)
+	{
+		printf("%c ", *i);          
+	}
+}
+
+SElemType StackGet(ListStack S) {
+	if (S->base == S->top) { return 0; }
+	else { return *(S->top - 1); }
+}
+
+int IfDigtal(SElemType s) {
+	switch (s)
+	{
+	case '0': return 0;break;
+	case '1': return 1;break;
+	case '2': return 2;break;
+	case '3': return 3;break;
+	case '4': return 4;break;
+	case '5': return 5;break;
+	case '6': return 6;break;
+	case '7': return 7;break;
+	case '8': return 8;break;
+	case '9': return 9;break;
+	default:  return 10; break;
+	}
+}
+int contrast(char symbol) {
+	switch (symbol)
+	{
+	case '+':return 1;break;
+	case '-':return 2;break;
+	case '*':return 3;break;
+	case '/':return 4;break;
+	case '(':return 5;break;
+	case ')':return 6;break;
+	case '=':return 7;break;
+	default:return 0;break;
+		
+	}
+}
+int compare(char Symboltop, char Symboljoin) {
+	int topdata;
+	int joindata;
+	int prior[8][8] = { {0,0,0,0,0,0,4,0},
+						{0,1,1,0,0,0,1,1},
+						{0,1,1,0,0,0,1,1},
+						{0,1,1,1,1,0,1,1},
+						{0,1,1,1,1,0,1,1},
+						{0,0,0,0,0,0,3,4},
+						{0,1,1,1,1,4,1,1},
+						{0,4,4,4,4,4,4,4} };
+	topdata = contrast(Symboltop);
+	joindata = contrast(Symboljoin);
+
+	return prior[topdata][joindata];
+}
+
+int get(SElemType** Formula, int n) {
+	int data = 0;
+	int count = 0;
+	while (IfDigtal(**Formula)!=10)
+	{
+		(*Formula)++;
+		count++;
+	}
+	for ( int j = count; j >0; j--)
+	{
+		(*Formula)--;
+	}
+	for (count; count>0; count--)
+	{
+		data += IfDigtal (**Formula)* pow(10, count - 1);
+		(*Formula)++;
+	}
+	return data;
+
+}
+int calculation(int data1, int data2, char data3) {
+	switch (data3)
+	{
+	case'+':return data1 + data2;break;
+	case'-':return data1 - data2;break;
+	case'*':return data1 * data2;break;
+	case'/':return data1 / data2;break;
+	default:
+		break;
+	}
+}
+void Computation(SElemType *Formula,int n){
+	ListStack C;StackInit(C);ListStackInt S;StackInitInt(S);
+	while (*Formula!='\0')
+	{
+		if (IfDigtal(*Formula)!=10)
+		{
+			StackPushInt(S, get(&Formula,n));
+		}
+		else if(IfDigtal(*Formula) == 10)
+		{
+			switch (compare(StackGet(C), *Formula))
+			{
+			case 0:
+				StackPush(C, *Formula);
+				Formula++;
+				break;
+			case 1:
+				StackPushInt(S, calculation(StackPopInt(S), StackPopInt(S), StackPop(C)));break;
+			case 3:
+				StackPop(C);
+				Formula++;
+				break;
+			}
+		}
+		StackDisplay(C);
+		printf("\n");
+		StackDisplayInt(S);
+		printf("\n\n");
+	}
+	StackDisplayInt(S);
+}
+int main(){
+	char *data = "(12+12)*12-1/15=";
+	Computation(data, 20);
+	return 0;
+}

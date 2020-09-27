@@ -1,0 +1,13 @@
+#ifndef GREEDYSNAKE_H_INCLUDED
+#define GREEDYSNAKE_H_INCLUDED
+
+#define LEFT 0x4b00
+#define RIGHT 0x4d00
+#define DOWN 0x5000
+#define UP 0x4800
+#define ESC 0x011b
+#define MAXLENGTH 100
+
+
+
+#endif // !GREEDYSNAKE_H_INCLUDED

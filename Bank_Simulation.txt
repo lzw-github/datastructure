@@ -1,0 +1,202 @@
+#include <stdio.h>
+#include<malloc.h>
+#include <stdlib.h>
+#include <time.h>
+typedef struct {
+	int OccurTime;
+	int NType;//事件0,1,2,3,4
+}ElemType; 
+
+typedef struct Lnode {
+	ElemType data;
+	struct Lnode* next;
+}Lnode, * LinkList; //事件表，链表
+
+typedef LinkList EvenList;//事件链表类型
+
+typedef struct {
+	int ArrivalTime;//到达时刻
+	int Duration; //办理事务事件
+}QElemType;//队列
+
+typedef struct QNode {
+	QElemType data;  
+	struct QNode* next; 
+}QNode, * QueuePtr;//银行排队链表
+
+typedef struct {
+	QueuePtr front;
+	QueuePtr rear;
+}LinkQueue;//队列
+
+
+EvenList ev; //事件驱动
+ElemType en; //事件
+LinkQueue Q[5];//排队器
+QElemType customer; //排队中的人
+int TotalTime, CustomerNum; //总时间 总人数
+
+
+void LinkInit(LinkList& L) { // 事件初始化
+	L = (LinkList)malloc(sizeof(Lnode));
+	L->next = NULL;
+}
+void LinkInsert(LinkList L, int i, ElemType e) //事件插入
+{
+	if (i <= 0)	return;
+	int  j = 0;
+	while (L && j < i - 1) {
+		L = L->next;
+		j++;
+	}
+	if (!L) return;
+	LinkList s = (LinkList)malloc(sizeof(Lnode));
+	s->data = e;
+	s->next = L->next;
+	L->next = s;
+
+}
+void LinkDispaly(LinkList L) {  //打印
+	//printf("%d ", L->data);
+	while (L = L->next)
+	{
+		printf("%d ", L->data.OccurTime);
+	}
+	printf("\n");
+}
+int Order(LinkList L, ElemType e) {//事件在链表中的位置，按大小顺序
+	int i = 1;
+	while (L=L->next)
+	{
+		if (e.OccurTime > L->data.OccurTime) {
+			i++;
+		}
+	}
+	return i;
+}
+void QueueInit(LinkQueue& Q) {
+	QueuePtr node = (QueuePtr)malloc(sizeof(QNode));
+	node->next = NULL;
+	Q.front = node;
+	Q.rear = node;
+}
+void QeueInsert(LinkQueue& Q, QElemType e) {
+	QueuePtr node = (QueuePtr)malloc(sizeof(QNode));
+	Q.rear->data = e;
+	node->next = Q.rear->next;
+	Q.rear->next = node;
+	Q.rear = node;
+}
+QElemType QeueDelete(LinkQueue& Q) {
+	QElemType re;
+	re.ArrivalTime = NULL;
+	re.Duration = NULL;
+	if (Q.front == Q.rear) {
+		return re;
+	}
+	QueuePtr s;
+	re = Q.front->data;
+	s = Q.front;
+	Q.front = Q.front->next;
+	free(s);
+	return re;
+}
+int QueueLength(LinkQueue Q) {
+	int count = 0;
+	while (Q.front != Q.rear)
+	{
+		count++;
+		Q.front = Q.front->next;
+	}
+		return count;
+}
+int MinLength(LinkQueue *Q) {
+	int re = 1;
+	for (int i = 1; i <=4 ; i++)
+	{
+		re = QueueLength(Q[i - 1]) > QueueLength(Q[i]) ? i : re;
+	}
+	return re;
+}
+QElemType QueueHead(LinkQueue Q) {
+	return Q.front->data;
+}
+void OpenForDay() {
+	TotalTime = 0;
+	CustomerNum = 0;
+	LinkInit(ev);
+	en.OccurTime = 0;
+	en.NType = 0;
+	LinkInsert(ev, 1, en);
+	for (int i = 1; i <= 4; i++)
+	{
+		QueueInit(Q[i]);
+	}
+}
+void CustomerArrived(ElemType e,int CloseTime) {
+	int i;
+	QElemType re;
+	CustomerNum++;
+	srand((unsigned)time(NULL));
+	int intertime = rand() % 10+3;
+	int durtime = rand() % 10+10;
+	en.NType = 0;
+	en.OccurTime = intertime + e.OccurTime;
+	re.ArrivalTime = e.OccurTime;
+	re.Duration = durtime;
+
+	if (en.OccurTime < CloseTime) {
+		LinkInsert(ev, Order(ev, en), en);
+	}
+
+	i = MinLength(Q);
+	QeueInsert(Q[i], re);
+
+	en.OccurTime = e.OccurTime + durtime;
+	en.NType = i;
+	if (QueueLength(Q[i]) == 1) {
+		LinkInsert(ev,Order(ev,en),en);
+	}
+}
+void CustomerDeparture(ElemType e) {
+	int i = e.NType;
+	ElemType re;
+	customer = QeueDelete(Q[i]);
+	TotalTime += e.OccurTime - customer.ArrivalTime;
+    if(QueueLength(Q[i])!=0){
+		customer = QueueHead(Q[i]);
+		re.NType = i;
+		re.OccurTime = customer.Duration + e.OccurTime;
+		LinkInsert(ev, Order(ev, re), re);
+	}
+}
+void Bank_Simulation(int CloseTime) {
+	LinkList q;
+	OpenForDay();
+	ev = ev->next;
+	while (ev->data.OccurTime<CloseTime)
+	{
+		if (ev->data.NType == 0) {
+			CustomerArrived(ev->data, CloseTime);
+		}
+		else
+		{
+			CustomerDeparture(ev->data);
+		}
+		q = ev;
+		ev = ev->next;
+		free(q);
+		printf("当前时间表:");
+		LinkDispaly(ev);
+		printf("当前总时间:%d,当前总人数:%d \n \n", TotalTime, CustomerNum);
+
+		
+	}
+	printf("%f\n", (float)TotalTime / CustomerNum);
+}
+
+
+int main() {
+   	Bank_Simulation(1000);
+	return 0;
+}

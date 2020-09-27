@@ -1,8 +1,6 @@
-#ifndef SQSTACK_H_INCLUDED
-#define SQSTACK_H_INCLUDED
-typedef int ElemType;
-#define true OK;
-#define Mixsize 20
+#ifndef SQLIST_H_INCLUDED
+#define SQLIST_H_INCLUDED
+#include"GlobalVar.h"
 typedef struct SqList{
 	ElemType *elem;
 	ElemType length;

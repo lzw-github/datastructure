@@ -13,7 +13,7 @@ void ListDispaly(SqList& L) {
 }
 
 int LnitList(SqList& L) {
-	L.elem = (ElemType*)malloc(Mixsize * sizeof(ElemType));
+	L.elem = (ElemType*)malloc(maxsize * sizeof(ElemType));
 	if (!L.elem)
 	{
 		return 0;
@@ -25,11 +25,11 @@ int LnitList(SqList& L) {
 
 
 void ListInsert(SqList& L, int i, ElemType e) { 
-	if (i < 0 || i>=Mixsize)
+	if (i < 0 || i>=maxsize)
 	{
 		return;
 	}
-	if (L.length == Mixsize) {
+	if (L.length == maxsize) {
 		return;
 	}
 	for (int j = L.length;j>=i;j--){
@@ -44,7 +44,7 @@ void ListInsert(SqList& L, int i, ElemType e) {
 
 ElemType ListDelete(SqList& L, int i) {
 	ElemType data;
-	if (i<0||i>Mixsize)
+	if (i<0||i>maxsize)
 	{
 		return 0;
 	}
